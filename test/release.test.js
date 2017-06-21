@@ -34,7 +34,7 @@ describe('path to ApiKey', () => {
 });
 
 describe('PubSub', () => {
-  it('check empty Api Key', (done) => {
+  it('check pubsub connection', (done) => {
     assert.equal(indiesquare.getAddress('test', function(url, a, err){if(!err && url != null){ done(); }}, null), null);
   });
 });
