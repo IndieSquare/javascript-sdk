@@ -14,7 +14,10 @@
   "main": "src/index.js",
   "author": "IndieSquare Inc.",
   "description": "IndieSquare Javascript SDK for Token Economy.",
-  "private": true,
+  "private": false,
+  "engines": {
+    "node": ">= 4.4.3"
+  },
   "dependencies": {
     "mobile-detect": "^1.3.6",
     "node-fetch": "^1.7.1",
