@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <title>example</title>
+  
+  <script src="https://cdn.indiesquare.me/v1/indiesquare.min.js"></script>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/master/qrcode.min.js"></script>
+  <script>
+	// Initiailize
+	var indiesquare = new IndieSquare({
+		'apikey': 'your-api-key', // See https://developer.indiesquare.me/#api-key
+		// 'use-server': true,
+		// 'port': 8080
+	});
+	
+	// Screen transition
+	indiesquare.transition({'screen': 'send', 'token': 'XCP', 'destination': '1LZp3kBtqiTi1szU1pMWWmVhejBdmHNirm', 'amount': 0.1}, function(url, urlScheme, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		new QRCode(document.getElementById('qrcode1'), {
+		    text: url,
+		    width: 128, height: 128,
+		    correctLevel : QRCode.CorrectLevel.L
+		});
+	});
+	
+	// Get bitcoin address from indiesquare wallet
+	indiesquare.getAddress('test', function(url, urlScheme, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		new QRCode(document.getElementById('qrcode2'), {
+		    text: url,
+		    width: 128, height: 128,
+		    correctLevel : QRCode.CorrectLevel.L
+		});
+	}, function(result, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		console.log(result.address);
+	});
+	
+	// Get balance on source address.
+	indiesquare.getBalances({'source': '1LZp3kBtqiTi1szU1pMWWmVhejBdmHNirm'}, function(data, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		console.log('Get balance on source address.');
+		console.dir(data);
+	});
+	
+	// Get token description from Enhanced asset info url.
+	indiesquare.getTokenDescription({'description': 'https://res.indiesquare.me/json/INDIESQUARE.json'}, function(data, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		console.log('Get token description from Enhanced asset info url.');
+		console.dir(data);
+	});
+	
+	// Create send transaction and sign it.
+	indiesquare.createSend({"source": "1LZp3kBtqiTi1szU1pMWWmVhejBdmHNirm", "token": "INDIESQUARE", "destination": "1JynF1GgD279DBZxQBubJXz4NuHcTy65k3", "quantity": 1}, function(data, error){
+		if( error ){
+			console.error(error);
+			return;
+		}
+		
+		console.dir('unsigned_tx:' + data.unsigned_tx);
+		indiesquare.signTransaction(data, function(url, urlScheme, error){
+			if( error ){
+				console.error(error);
+				return;
+			}
+			new QRCode(document.getElementById('qrcode3'), {
+			    text: url,
+			    width: 128, height: 128,
+			    correctLevel : QRCode.CorrectLevel.L
+			});
+		}, function(data, error){
+			if( error ){
+				console.error(error);
+				return;
+			}
+			console.log(data.signed_tx);
+		});
+	});
+  </script>
+</head>
+<body>
+<div>
+	<p>Transition to Send screen (XCP)</p>
+	<div id="qrcode1" />
+</div>
+<div>
+	<p>Get bitcoin address from indiesquare wallet</p>
+	<div id="qrcode2" />
+</div>
+<div>
+	<p>Create send transaction and sign it.</p>
+	<div id="qrcode3" />
+</div>
+</body>
+
+</html>
