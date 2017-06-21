@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - '7'
+  - '6'
+  - '5'
+  - '4'
+  - '4.4.3'
+  - '0.12'
+script:
+  gulp releasetest
