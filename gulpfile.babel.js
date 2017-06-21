@@ -1,5 +1,4 @@
 const gulp = require('gulp');
-const webpack = require('gulp-webpack');
 const derequire = require('gulp-derequire');
 const clean = require('gulp-clean');
 const babel = require('gulp-babel');
