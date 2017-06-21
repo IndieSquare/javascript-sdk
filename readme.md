@@ -9,7 +9,6 @@
 - https://cdn.indiesquare.me/v1/indiesquare.js
 - https://cdn.indiesquare.me/v1/indiesquare.min.js
 
-** Example **
----
+**Example**
 
 - see example/index.html
