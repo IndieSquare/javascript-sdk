@@ -1,9 +1,9 @@
 {
   "name": "indiesquare",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
-	  "test": "gulp release"
+    "test": "gulp release"
   },
   "keywords": [
     "blockchain",
