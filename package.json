@@ -11,7 +11,7 @@
     "token",
     "bitcoin"
   ],
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "author": "IndieSquare Inc.",
   "description": "IndieSquare Javascript SDK for Token Economy.",
   "private": false,
