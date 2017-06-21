@@ -1,5 +1,5 @@
-import '../node_modules/whatwg-fetch';
-import MobileDetect from '../node_modules/mobile-detect';
+import 'whatwg-fetch';
+import MobileDetect from 'mobile-detect';
 
 class IndieSquare {
 	constructor( parent_params ){

@@ -22,8 +22,7 @@ gulp.task('babel', () => {
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(replace('exports.default = IndieSquare;', 'module.exports = IndieSquare;'))
-    .pipe(replace("require('../node_modules/whatwg-fetch');", "var fetch = require('node-fetch');"))
-    .pipe(replace('../node_modules/mobile-detect', 'mobile-detect'))
+    .pipe(replace("require('whatwg-fetch');", "var fetch = require('node-fetch');"))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('lib'));
 });
