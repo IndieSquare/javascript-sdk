@@ -1485,7 +1485,12 @@ var IndieSquare = function () {
 				this.apikey = parent_params.apikey;
 			}
 			if (parent_params.use_server && parent_params.use_server !== false) {
-				this.baseApi = window.location.protocol + '//' + window.location.hostname;
+				try {
+					this.baseApi = window.location.protocol + '//' + window.location.hostname;
+				} catch (e) {
+					this.baseApi = 'http://localhost';
+				}
+
 				if (parent_params.port) {
 					this.baseApi += ':' + parent_params.port;
 				} else {
@@ -1496,11 +1501,30 @@ var IndieSquare = function () {
 	}
 
 	_createClass(IndieSquare, [{
+		key: 'getBaseUrl',
+		value: function getBaseUrl() {
+			return this.base;
+		}
+	}, {
+		key: 'getBaseApiUrl',
+		value: function getBaseApiUrl() {
+			return this.baseApi;
+		}
+	}, {
+		key: 'getApiKey',
+		value: function getApiKey() {
+			return this.apikey;
+		}
+	}, {
 		key: '_getscheme',
 		value: function _getscheme() {
-			var userAgent = window.navigator.userAgent.toLowerCase();
 			var scheme = null;
-			if (userAgent.indexOf('indiesquarewallet') != -1) scheme = 'indiesquarewallet';else if (userAgent.indexOf('msie') != -1) scheme = null;else if (userAgent.indexOf('crios') != -1) scheme = 'googlechrome';else if (userAgent.indexOf('safari') != -1) scheme = 'http';else if (userAgent.indexOf('opera') != -1) scheme = 'opera-http';else if (userAgent.indexOf('android') != -1) scheme = 'http';
+			try {
+				var userAgent = window.navigator.userAgent.toLowerCase();
+				if (userAgent.indexOf('indiesquarewallet') != -1) scheme = 'indiesquarewallet';else if (userAgent.indexOf('msie') != -1) scheme = null;else if (userAgent.indexOf('crios') != -1) scheme = 'googlechrome';else if (userAgent.indexOf('safari') != -1) scheme = 'http';else if (userAgent.indexOf('opera') != -1) scheme = 'opera-http';else if (userAgent.indexOf('android') != -1) scheme = 'http';
+			} catch (e) {
+				scheme = 'http';
+			}
 			return scheme;
 		}
 	}, {
@@ -1538,15 +1562,18 @@ var IndieSquare = function () {
 			}
 			var url = 'indiewallet://' + url_params;
 
-			var urlScheme;
-			var md = new _mobileDetect2.default(window.navigator.userAgent);
-			if (md.mobile()) {
-				if (md.os() === 'iOS') {
-					urlScheme = url;
-				} else {
-					urlScheme = 'intent://#Intent;scheme=indiewallet;package=inc.lireneosoft.counterparty;S.source=' + url_params + ';end';
+			var urlScheme = null;
+			var md = null;
+			try {
+				md = new _mobileDetect2.default(window.navigator.userAgent);
+				if (md.mobile()) {
+					if (md.os() === 'iOS') {
+						urlScheme = url;
+					} else {
+						urlScheme = 'intent://#Intent;scheme=indiewallet;package=inc.lireneosoft.counterparty;S.source=' + url_params + ';end';
+					}
 				}
-			}
+			} catch (e) {}
 
 			if (_scheme === 'indiesquarewallet') {
 				weblink = function (_weblink) {
@@ -1564,7 +1591,7 @@ var IndieSquare = function () {
 					return url;
 				});
 			} else {
-				if (md.mobile()) document.location = url;
+				if (md && md.mobile()) document.location = url;
 				var time = new Date().getTime();
 				setTimeout(function () {
 					if (new Date().getTime() - time < 400) {

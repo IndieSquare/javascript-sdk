@@ -5,6 +5,7 @@ const clean = require('gulp-clean');
 const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
 const replace = require('gulp-replace');
+const mocha = require('gulp-mocha');
 
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
@@ -54,6 +55,15 @@ gulp.task('uglify', () => {
     .pipe(gulp.dest('dist'))
 });
 
+gulp.task('releasetest', () => {
+  return gulp.src('test/release.test.js', { read: false })
+    .pipe(mocha({ reporter: 'spec', timeout: 100000 }));
+});
+
 gulp.task('default', (done) => {
   runSequence('clean', 'babel', 'browserify-pre', 'browserify', 'browserify-post', 'uglify', done);
+});
+
+gulp.task('release', (done) => {
+  runSequence('clean', 'babel', 'releasetest', 'browserify-pre', 'browserify', 'browserify-post', 'uglify', done);
 });

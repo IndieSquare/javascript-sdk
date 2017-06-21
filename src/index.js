@@ -12,7 +12,9 @@ class IndieSquare {
 				this.apikey = parent_params.apikey;
 			}
 			if( parent_params.use_server && parent_params.use_server !== false ){
-				this.baseApi = window.location.protocol + '//' + window.location.hostname;
+				try{ this.baseApi = window.location.protocol + '//' + window.location.hostname; }
+				catch(e){ this.baseApi = 'http://localhost'; }
+				
 				if( parent_params.port ){
 					this.baseApi += ':' + parent_params.port;
 				}
@@ -23,15 +25,32 @@ class IndieSquare {
 		}
 	}
 	
+	getBaseUrl(){
+		return this.base;
+	}
+	
+	getBaseApiUrl(){
+		return this.baseApi;
+	}
+	
+	getApiKey(){
+		return this.apikey;
+	}
+	
 	_getscheme() {
-	    var userAgent = window.navigator.userAgent.toLowerCase();
-	    var scheme = null;
-		if( userAgent.indexOf('indiesquarewallet') != -1 ) scheme = 'indiesquarewallet';
-		else if( userAgent.indexOf('msie') != -1 ) scheme = null;
-		else if( userAgent.indexOf('crios') != -1 ) scheme = 'googlechrome';
-		else if( userAgent.indexOf('safari') != -1 ) scheme = 'http';
-		else if( userAgent.indexOf('opera') != -1 ) scheme = 'opera-http';
-		else if (userAgent.indexOf('android') != -1) scheme = 'http';
+		var scheme = null;
+		try{
+		    var userAgent = window.navigator.userAgent.toLowerCase();
+			if( userAgent.indexOf('indiesquarewallet') != -1 ) scheme = 'indiesquarewallet';
+			else if( userAgent.indexOf('msie') != -1 ) scheme = null;
+			else if( userAgent.indexOf('crios') != -1 ) scheme = 'googlechrome';
+			else if( userAgent.indexOf('safari') != -1 ) scheme = 'http';
+			else if( userAgent.indexOf('opera') != -1 ) scheme = 'opera-http';
+			else if (userAgent.indexOf('android') != -1) scheme = 'http';
+		}
+		catch(e){
+			scheme = 'http';
+		}
 		return scheme;
 	};
 	
@@ -66,15 +85,19 @@ class IndieSquare {
 		}
 		var url = 'indiewallet://' + url_params;
 		
-		var urlScheme;
-	    var md = new MobileDetect(window.navigator.userAgent);
-	    if (md.mobile()) {
-	      if (md.os() === 'iOS') {
-	        urlScheme = url;
-	      } else {
-	        urlScheme = 'intent://#Intent;scheme=indiewallet;package=inc.lireneosoft.counterparty;S.source=' + url_params + ';end';
-	      }
+		var urlScheme = null;
+		var md = null;
+		try{
+		    md = new MobileDetect(window.navigator.userAgent);
+		    if (md.mobile()) {
+		      if (md.os() === 'iOS') {
+		        urlScheme = url;
+		      } else {
+		        urlScheme = 'intent://#Intent;scheme=indiewallet;package=inc.lireneosoft.counterparty;S.source=' + url_params + ';end';
+		      }
+		    }
 	    }
+	    catch(e){}
 	    
 	    if( _scheme === 'indiesquarewallet' ){
 			weblink = function(){
@@ -83,7 +106,7 @@ class IndieSquare {
 			};
 		}
 	    else {
-			if (md.mobile()) document.location = url;
+			if( md && md.mobile() ) document.location = url;
 			var time = (new Date()).getTime();
 	        setTimeout(function(){
 	            if( ((new Date()).getTime() - time) < 400 ){
