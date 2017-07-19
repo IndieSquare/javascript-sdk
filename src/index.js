@@ -7,13 +7,14 @@ class IndieSquare {
 		this.baseApi = 'https://api.indiesquare.me';
 		this.apikey = null;
 		
+		try{ window.weblink = null; } catch(e){}
+		
 		if( parent_params ){
 			if( parent_params.apikey != null ){
 				this.apikey = parent_params.apikey;
 			}
 			if( parent_params.use_server && parent_params.use_server !== false ){
 				try{
-					window.weblink = null;
 					this.baseApi = window.location.protocol + '//' + window.location.hostname;
 				}
 				catch(e){ this.baseApi = 'http://localhost'; }

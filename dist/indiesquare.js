@@ -1480,6 +1480,10 @@ var IndieSquare = function () {
 		this.baseApi = 'https://api.indiesquare.me';
 		this.apikey = null;
 
+		try {
+			window.weblink = null;
+		} catch (e) {}
+
 		if (parent_params) {
 			if (parent_params.apikey != null) {
 				this.apikey = parent_params.apikey;
@@ -1591,7 +1595,7 @@ var IndieSquare = function () {
 					return url;
 				});
 			} else {
-				if (md && md.mobile()) document.location = url;
+				if (md && md.mobile()) document.location = urlScheme;
 				var time = new Date().getTime();
 				setTimeout(function () {
 					if (new Date().getTime() - time < 400) {
