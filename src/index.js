@@ -12,7 +12,10 @@ class IndieSquare {
 				this.apikey = parent_params.apikey;
 			}
 			if( parent_params.use_server && parent_params.use_server !== false ){
-				try{ this.baseApi = window.location.protocol + '//' + window.location.hostname; }
+				try{
+					window.weblink = null;
+					this.baseApi = window.location.protocol + '//' + window.location.hostname;
+				}
 				catch(e){ this.baseApi = 'http://localhost'; }
 				
 				if( parent_params.port ){
@@ -106,7 +109,7 @@ class IndieSquare {
 			};
 		}
 	    else {
-			if( md && md.mobile() ) document.location = url;
+			if( md && md.mobile() ) document.location = urlScheme;
 			var time = (new Date()).getTime();
 	        setTimeout(function(){
 	            if( ((new Date()).getTime() - time) < 400 ){
