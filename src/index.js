@@ -1,5 +1,6 @@
 import 'whatwg-fetch';
 import MobileDetect from 'mobile-detect';
+var Message = require('bitcore-message');
 
 class IndieSquare {
 	constructor( parent_params ){
@@ -72,12 +73,14 @@ class IndieSquare {
 			delete _params['channel'];
 			delete _params['request'];
 		}
+		
+		var xcallback_functions = ['verifyuser', 'getaddress', 'qrcode', 'signmessage'];
 		var url_params = params.request + '?params=' + JSON.stringify(_params);
-		if( params.request === 'verifyuser' || params.request === 'getaddress' ){
+		if( xcallback_functions.indexOf(params.request) >= 0 ){
 			var xcallback_params = '';
 			
 			_params['x-success'] = params['x-success'];
-			_params['msg'] = channel;
+			_params['msg'] = (params['message'] != null)? params['message']: channel;
 			for( var key in _params ){
 				xcallback_params += key + '=' + _params[key] + '&';
 			}
@@ -88,16 +91,18 @@ class IndieSquare {
 		var urlScheme = null;
 		var md = null;
 		try{
-		    md = new MobileDetect(window.navigator.userAgent);
+			md = new MobileDetect(window.navigator.userAgent);
 		    if (md.mobile()) {
-		      if (md.os() === 'iOS') {
+			  if (md.os() === 'iOS') {
 		        urlScheme = url;
 		      } else {
 		        urlScheme = 'intent://#Intent;scheme=indiewallet;package=inc.lireneosoft.counterparty;S.source=' + url_params + ';end';
 		      }
 		    }
 	    }
-	    catch(e){}
+	    catch(e){
+		    console.log(e.message);
+	    }
 	    
 	    if( _scheme === 'indiesquarewallet' ){
 			weblink = function(){
@@ -106,7 +111,9 @@ class IndieSquare {
 			};
 		}
 	    else {
-			if( md && md.mobile() ) document.location = url;
+			if( md && md.mobile() ){
+				document.location = urlScheme;
+			}
 			var time = (new Date()).getTime();
 	        setTimeout(function(){
 	            if( ((new Date()).getTime() - time) < 400 ){
@@ -205,6 +212,13 @@ class IndieSquare {
 		});
 	}
 	
+	_verifyAddress( params ){
+		if( params.address != null && params.message != null && params.signature != null ){
+			return Message(params.message).verify(params.address, params.signature);
+		}
+		return false;
+	}
+	
 	signTransaction(params, connect, callback) {
 		var channel = 'indie-' + this._uuid();
 	  
@@ -254,12 +268,52 @@ class IndieSquare {
 	
 	getAddress(xsuccess, connect, callback) {
 		var channel = 'indie-' + this._uuid();
+		var self = this;
 		this._pubsub(channel, {'request': 'getaddress', 'x-success': xsuccess}, connect, function( result, error ){
 			if( error ){
 				callback(null, error);
 				return;
 			}
-			callback(result.data, null);
+			var verify = self._verifyAddress({ 'address': result.data.address, 'message': channel, 'signature': result.data.signature});
+			if( !verify ){
+				callback(null, {'message': 'Invalid Address'});
+				return;
+			}
+			callback({'address': result.data.address, 'veryfy': verify}, null);
+		});
+	}
+	
+	getQRcode(xsuccess, connect, callback) {
+		var channel = 'indie-' + this._uuid();
+		var self = this;
+		this._pubsub(channel, { 'request': 'qrcode', 'x-success': xsuccess }, connect, function (result, error) {
+			if( error ){
+				callback(null, error);
+				return;
+			}
+			var verify = self._verifyAddress({ 'address': result.data.address, 'message': channel, 'signature': result.data.signature});
+			if( !verify ){
+				callback(null, {'message': 'Invalid Data'});
+				return;
+			}
+			callback({'data': result.data.data, 'verify': verify}, null);
+		});
+	}
+	
+	signMessage(params, connect, callback) {
+		var channel = 'indie-' + this._uuid();
+		var self = this;
+		this._pubsub(channel, {'request': 'signmessage', 'x-success': params.xsuccess, 'message': params.message }, connect, function( result, error ){
+			if( error ){
+				callback(null, error);
+				return;
+			}
+			var verify = self._verifyAddress({ 'address': result.data.address, 'message': params.message, 'signature': result.data.signature});
+			if( !verify ){
+				callback(null, {'message': 'Invalid Signature'});
+				return;
+			}
+			callback({'message': result.data.message, 'signature': result.data.signature, 'verify': verify}, null);
 		});
 	}
 	
